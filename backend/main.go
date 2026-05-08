@@ -51,11 +51,6 @@ func main() {
 	mux.HandleFunc("/agent/", handler.AgentProxy)
 
 	fmt.Println("Server started at :8080")
-
-<<<<<<< Updated upstream
-=======
-	// Wrap the mux with the locally defined enableCORS function
->>>>>>> Stashed changes
 	log.Fatal(
 		http.ListenAndServe(":8080", enableCORS(mux)),
 	)
