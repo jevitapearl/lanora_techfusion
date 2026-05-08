@@ -1,3 +1,0 @@
-# No external dependencies required!
-# This chatbot runs with Python standard library only.
-# Just run: python main.py
