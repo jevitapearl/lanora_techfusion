@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"lanora_techfusion/internal/database"
@@ -11,34 +12,46 @@ import (
 
 func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
+
 		next.ServeHTTP(w, r)
 	})
 }
 
 func main() {
+
 	database.Connect()
 
 	mux := http.NewServeMux()
 
-	// Auth
+	// Public routes
 	mux.HandleFunc("/api/register", handler.Register)
 	mux.HandleFunc("/api/login", handler.Login)
 
-	// Auth protected
-	mux.Handle("/api/test-agent", middleware.JWTAuth(http.HandlerFunc(handler.TestAgent)))
-	// mux.Handle("/api/deploy-agent", middleware.JWTAuth(http.HandlerFunc(handler.DeployAgent)))
+	// Protected routes
+	mux.Handle(
+		"/api/test-agent",
+		middleware.JWTAuth(http.HandlerFunc(handler.TestAgent)),
+	)
 
-	// Dashboard
-	mux.Handle("/api/dashboard", middleware.JWTAuth(http.HandlerFunc(handler.DashboardHandler)))
+	mux.Handle(
+		"/api/dashboard",
+		middleware.JWTAuth(http.HandlerFunc(handler.DashboardHandler)),
+	)
+
 	mux.HandleFunc("/agent/", handler.AgentProxy)
 
-	fmt.Println("Server started at :5000")
-	http.ListenAndServe(":5000", enableCORS(mux))
+	fmt.Println("Server started at :8080")
+
+	log.Fatal(
+		http.ListenAndServe(":8080", enableCORS(mux)),
+	)
 }
