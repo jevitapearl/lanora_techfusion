@@ -1,0 +1,2 @@
+[console_scripts]
+lanora = lanora.cli:main
