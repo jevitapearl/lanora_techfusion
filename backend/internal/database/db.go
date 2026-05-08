@@ -10,38 +10,30 @@ import (
 
 var DB *sql.DB
 
+// Use a single source of truth for config
 const (
-	host     = "localhost"
-	port     = 5433
-	user     = "jevita"
-	password = "jevita@12345"
-	dbname   = "lanora"
+	Host     = "localhost"
+	Port     = 5433
+	User     = "jevita"
+	Password = "jevita@12345"
+	DBName   = "lanora"
 )
 
 func Connect() {
-
 	psqlInfo := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host,
-		port,
-		user,
-		password,
-		dbname,
+		Host, Port, User, Password, DBName,
 	)
 
 	db, err := sql.Open("postgres", psqlInfo)
-
 	if err != nil {
 		log.Fatal("Database connection failed:", err)
 	}
 
-	err = db.Ping()
-
-	if err != nil {
+	if err := db.Ping(); err != nil {
 		log.Fatal("Database unreachable:", err)
 	}
 
 	DB = db
-
-	fmt.Println("Connected to PostgreSQL")
+	fmt.Println("Connected to PostgreSQL via sql.DB")
 }

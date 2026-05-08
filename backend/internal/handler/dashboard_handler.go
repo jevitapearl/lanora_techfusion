@@ -44,4 +44,38 @@ func AgentProxy(w http.ResponseWriter, r *http.Request) {
 	proxy.ServeHTTP(w, r)
 }
 
-// Add SandboxesHandler, HistoryHandler, ResourcesHandler here
+// ... existing DashboardHandler and AgentProxy ...
+
+func SandboxesHandler(w http.ResponseWriter, r *http.Request) {
+	rows, err := database.DB.Query(`SELECT id, name, status, runtime_seconds, storage_mb FROM sandboxes`)
+	if err != nil {
+		utils.Error(w, 500, err.Error())
+		return
+	}
+	defer rows.Close()
+
+	var sandboxes []models.Sandbox
+	for rows.Next() {
+		var s models.Sandbox
+		rows.Scan(&s.ID, &s.Name, &s.Status, &s.Runtime, &s.Storage)
+		sandboxes = append(sandboxes, s)
+	}
+	utils.JSON(w, 200, sandboxes)
+}
+
+func HistoryHandler(w http.ResponseWriter, r *http.Request) {
+	rows, err := database.DB.Query(`SELECT id, agent_name, run_status, started_at FROM agent_runs ORDER BY started_at DESC`)
+	if err != nil {
+		utils.Error(w, 500, err.Error())
+		return
+	}
+	defer rows.Close()
+
+	var history []models.RunHistory
+	for rows.Next() {
+		var h models.RunHistory
+		rows.Scan(&h.ID, &h.AgentName, &h.Status, &h.StartedAt)
+		history = append(history, h)
+	}
+	utils.JSON(w, 200, history)
+}
