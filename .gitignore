@@ -1,1 +1,5 @@
 lvenv
+
+backend-go/.env
+backend-go/uploads
+backend-go/workspaces
